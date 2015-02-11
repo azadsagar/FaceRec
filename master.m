@@ -22,7 +22,7 @@ function varargout = master(varargin)
 
 % Edit the above text to modify the response to help master
 
-% Last Modified by GUIDE v2.5 11-Feb-2015 10:39:04
+% Last Modified by GUIDE v2.5 12-Feb-2015 00:42:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -80,11 +80,46 @@ function pbtnOpenImg_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global fileName
 global pathName
+global userImage;
+global faceImage;
+
 [fileName pathName] = uigetfile('*.jpg;*.png;*.bmp','Select File to Open');
+if isstr(fileName) && isstr(pathName)
+    userImage=imread(strcat(pathName,fileName));
+    imshow(userImage,'Parent',handles.uiImg1);
+    faceImage=DetectFace(userImage);
+    imshow(faceImage,'Parent',handles.axFaceImg);
+end
+    
 
 
-% --- Executes on button press in pbtnCapture.
-function pbtnCapture_Callback(hObject, eventdata, handles)
-% hObject    handle to pbtnCapture (see GCBO)
+% --- Executes on button press in pbtnLiveCam.
+function pbtnLiveCam_Callback(hObject, eventdata, handles)
+% hObject    handle to pbtnLiveCam (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global vid;
+global userImage;
+global faceImage;
+btnString=get(handles.pbtnLiveCam,'String');
+
+
+if strcmp(btnString,'Capture')
+    set(handles.pbtnLiveCam,'Enable','off');
+    userImage=getsnapshot(vid);
+    stoppreview(vid);
+    imshow(userImage,'Parent',handles.uiImg1);
+    faceImage=DetectFace(userImage);
+    imshow(faceImage,'Parent',handles.axFaceImg);
+    set(handles.pbtnLiveCam,'String','Live Cam');
+    set(handles.pbtnLiveCam,'Enable','on');
+else
+    set(handles.pbtnLiveCam,'Enable','off');
+    vid=videoinput('winvideo',1);
+    vidRes=get(vid,'VideoResolution');
+    nBands=get(vid,'NumberOfBands');
+    hImage=image(zeros(vidRes(2),vidRes(1),nBands),'Parent',handles.uiImg1);
+    preview(vid,hImage);
+    set(handles.pbtnLiveCam,'String','Capture');
+    set(handles.pbtnLiveCam,'Enable','on');
+end
