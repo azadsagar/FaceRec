@@ -5,6 +5,18 @@ function faceImg=DetectFace(img)
 
 faceDetector=vision.CascadeObjectDetector();
 bbox=step(faceDetector,img);
-faceImg=imcrop(img,bbox);
+[maxFaces dummy]=size(bbox);
+
+if maxFaces~=0
+    faceImg=cell(maxFaces,1);
+    
+    for i=1:maxFaces
+        for face=1:i
+            faceImg{face}=imcrop(img,bbox(face:maxFaces:maxFaces*dummy));
+        end
+    end
+else
+    faceImg=[];
+end
 
 end
