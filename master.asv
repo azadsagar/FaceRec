@@ -22,7 +22,7 @@ function varargout = master(varargin)
 
 % Edit the above text to modify the response to help master
 
-% Last Modified by GUIDE v2.5 06-Mar-2015 03:21:21
+% Last Modified by GUIDE v2.5 06-Mar-2015 03:32:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -92,7 +92,7 @@ if isstr(fileName) && isstr(pathName)
     faces=DetectFace(userImage);
     maxFaces=size(faces);
     set(handles.textMaxFaces,'String',maxFaces(1));
-    updateGUI(handles,maxFaces(1));
+    updateGUI(handles,1);
 end
     
 
@@ -121,7 +121,7 @@ if strcmp(btnString,'Capture')
     maxFaces=size(faces);
     set(handles.textMaxFaces,'String',maxFaces(1));
     
-    updateGUI(handles,maxFaces{1});
+    updateGUI(handles,1);
     
     set(handles.pbtnLiveCam,'String','Live Cam');
     set(handles.pbtnLiveCam,'Enable','on');
@@ -149,6 +149,9 @@ function pbPrevious_Callback(hObject, eventdata, handles)
 % hObject    handle to pbPrevious (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    global currentFace;
+    updateGUI(handles,currentFace-1);
+
 
 
 % --- Executes on button press in pbNext.
@@ -156,6 +159,9 @@ function pbNext_Callback(hObject, eventdata, handles)
 % hObject    handle to pbNext (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    global currentFace;
+    updateGUI(handles,currentFace+1);
+    
 
 
 % --- Executes on slider movement.
@@ -207,7 +213,22 @@ function pbtnSaveToDB_Callback(hObject, eventdata, handles)
 % hObject    handle to pbtnSaveToDB (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+    global faces;
+    global currentFace;
+    
+    getFileName=inputdlg('Enter the name of file');
+    
+    if ~isequal(exist('facedb','dir'),7)
+        mkdir facedb;
+    end
+    
+    getFileName=strcat(getFileName,'.jpg');
+    getFileName=strcat('facedb\',getFileName);
+    
+    currentFace
+    getFileName
+    img=rgb2gray(faces{currentFace
+    imwrite(rgb2gray(faces{currentFace}),getFileName,'JPEG');
 
 function updateGUI(handles,faceIndex)
     
@@ -219,11 +240,13 @@ function updateGUI(handles,faceIndex)
     currentFace=faceIndex;
     
     if faceIndex<maxFaces(1)
-        set(handles.pbNext,'Enable','On');
+        set(handles.pbNext,'Enable','on');
     else
-        set(handles.pbNext,'Enable','Off');
+        set(handles.pbNext,'Enable','off');
     end
     
-    if faceIndex>max
-
-
+    if faceIndex>1
+        set(handles.pbPrevious,'Enable','on')
+    else
+        set(handles.pbPrevious,'Enable','off')
+    end

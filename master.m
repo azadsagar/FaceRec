@@ -213,7 +213,19 @@ function pbtnSaveToDB_Callback(hObject, eventdata, handles)
 % hObject    handle to pbtnSaveToDB (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    global faces;
+    global currentFace;
+    
+    getFileName=inputdlg('Enter the name of file');
+    
+    if ~isequal(exist('facedb','dir'),7)
+        mkdir facedb;
+    end
+    
+    getFileName=strcat(getFileName,'.jpg');
+    getFileName=strcat('facedb\',getFileName);
 
+    imwrite(rgb2gray(faces{currentFace}),char(getFileName));
 
 function updateGUI(handles,faceIndex)
     
