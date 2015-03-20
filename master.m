@@ -225,7 +225,7 @@ function pbtnSaveToDB_Callback(hObject, eventdata, handles)
     getFileName=strcat(getFileName,'.jpg');
     getFileName=strcat('facedb\',getFileName);
 
-    imwrite(rgb2gray(faces{currentFace}),char(getFileName));
+    imwrite(imresize(rgb2gray(faces{currentFace}),[200 200]),char(getFileName));
 
 function updateGUI(handles,faceIndex)
     
