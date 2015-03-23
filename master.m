@@ -22,7 +22,7 @@ function varargout = master(varargin)
 
 % Edit the above text to modify the response to help master
 
-% Last Modified by GUIDE v2.5 06-Mar-2015 03:32:29
+% Last Modified by GUIDE v2.5 23-Mar-2015 02:17:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -216,16 +216,25 @@ function pbtnSaveToDB_Callback(hObject, eventdata, handles)
     global faces;
     global currentFace;
     
-    getFileName=inputdlg('Enter the name of file');
+    global sendImg;
+    sendImg=imresize(rgb2gray(faces{currentFace}),[200 200]);
     
-    if ~isequal(exist('facedb','dir'),7)
-        mkdir facedb;
-    end
+    xHandle=updateinfo;
+    %updateinfo('setTarget',xHandle);
+    xhwnd=guidata(xHandle);
+    imshow(sendImg,'Parent',xhwnd.faceImg);
     
-    getFileName=strcat(getFileName,'.jpg');
-    getFileName=strcat('facedb\',getFileName);
+    %getFileName=inputdlg('Enter the name of file');
+    
+    %if ~isequal(exist('facedb','dir'),7)
+        %mkdir facedb;
+    %end
+    
+    %getFileName=strcat(getFileName,'.jpg');
+    %getFileName=strcat('facedb\',getFileName);
 
-    imwrite(imresize(rgb2gray(faces{currentFace}),[200 200]),char(getFileName));
+    %imwrite(imresize(rgb2gray(faces{currentFace}),[200 200]),char(getFileName));
+    
 
 function updateGUI(handles,faceIndex)
     
