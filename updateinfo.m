@@ -22,7 +22,7 @@ function varargout = updateinfo(varargin)
 
 % Edit the above text to modify the response to help updateinfo
 
-% Last Modified by GUIDE v2.5 24-Mar-2015 00:19:48
+% Last Modified by GUIDE v2.5 25-Mar-2015 01:56:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -228,6 +228,7 @@ filename=strcat('facedb\',num2str(maxFiles+1));
 filename=strcat(filename,'.jpg');
 
 imgfile=strcat(num2str(maxFiles+1),'.jpg');
+set(handles.pbUpdateData,'Enable','off');
 
 user.rollno=rollno;
 user.class=xclass;
@@ -256,8 +257,10 @@ global sendImg;
 imwrite(sendImg,filename);
 %filename
 updateMasterDB('facedb',sendImg);
+load('facedb\facediff');
+computeEigenFaces(facediff);
 msgbox('Database successfully updated','Done !');
-set(handles.pbUpdateData,'Enable','off');
+
 %user
 
 
