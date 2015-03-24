@@ -22,7 +22,7 @@ function varargout = master(varargin)
 
 % Edit the above text to modify the response to help master
 
-% Last Modified by GUIDE v2.5 23-Mar-2015 02:17:36
+% Last Modified by GUIDE v2.5 25-Mar-2015 02:45:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -92,7 +92,7 @@ if isstr(fileName) && isstr(pathName)
     faces=DetectFace(userImage);
     maxFaces=size(faces);
     set(handles.textMaxFaces,'String',maxFaces(1));
-    updateGUI(handles,1);
+    updateGUI(hObject,handles,1);
 end
     
 
@@ -121,7 +121,7 @@ if strcmp(btnString,'Capture')
     maxFaces=size(faces);
     set(handles.textMaxFaces,'String',maxFaces(1));
     
-    updateGUI(handles,1);
+    updateGUI(hObject,handles,1);
     
     set(handles.pbtnLiveCam,'String','Live Cam');
     set(handles.pbtnLiveCam,'Enable','on');
@@ -150,7 +150,7 @@ function pbPrevious_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     global currentFace;
-    updateGUI(handles,currentFace-1);
+    updateGUI(hObject,handles,currentFace-1);
 
 
 
@@ -160,7 +160,7 @@ function pbNext_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     global currentFace;
-    updateGUI(handles,currentFace+1);
+    updateGUI(hObject,handles,currentFace+1);
     
 
 
@@ -173,6 +173,29 @@ function sliderBrightness_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
+ if isfield(handles,'lastbval')==0
+     handles.lastbval=0;
+ end
+ 
+bval=get(hObject,'Value');
+global faces;
+global currentFace;
+
+
+
+if (bval-handles.lastbval)>0
+    diff=bval-handles.lastbval;
+    diff=diff*10;
+    faces{currentFace}=faces{currentFace}+diff;
+else
+    diff=handles.lastbval-bval;
+    diff=diff*10;
+    faces{currentFace}=faces{currentFace}-diff;
+end
+diff
+imshow(faces{currentFace},'Parent',handles.axFaceImg);
+handles.lastbval=bval;
+guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
 function sliderBrightness_CreateFcn(hObject, eventdata, handles)
@@ -194,6 +217,27 @@ function sliderContrast_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+ if isfield(handles,'lastcval')==0
+     handles.lastcval=0;
+ end
+ 
+cval=get(hObject,'Value');
+global faces;
+global currentFace;
+
+if (cval-handles.lastcval)>0
+    diff=cval-handles.lastcval;
+    diff=diff*2;
+    faces{currentFace}=faces{currentFace}*diff;
+else
+    diff=handles.lastcval-cval;
+    diff=diff*2;
+    faces{currentFace}=uint8(faces{currentFace}/diff);
+end
+diff
+imshow(faces{currentFace},'Parent',handles.axFaceImg);
+handles.lastcval=cval;
+guidata(hObject,handles);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -236,7 +280,7 @@ function pbtnSaveToDB_Callback(hObject, eventdata, handles)
     %imwrite(imresize(rgb2gray(faces{currentFace}),[200 200]),char(getFileName));
     
 
-function updateGUI(handles,faceIndex)
+function updateGUI(hObject,handles,faceIndex)
     
     global faces;
     global currentFace;
@@ -256,3 +300,92 @@ function updateGUI(handles,faceIndex)
     else
         set(handles.pbPrevious,'Enable','off')
     end
+    
+    set(handles.sliderBrightness,'Value',0);
+    set(handles.sliderContrast,'Value',0);
+    handles.lastbval=0;
+    handles.lastcval=0;
+    guidata(hObject,handles);
+
+
+% --- Executes on button press in pbRecognize.
+function pbRecognize_Callback(hObject, eventdata, handles)
+% hObject    handle to pbRecognize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global faces;
+global maxFaces;
+
+load('facedb\facemean');
+load('facedb\ProjectedFaces');
+load('facedb\Eigenfaces');
+
+
+faceindex=[];
+
+for i=1:maxFaces
+    faceindex=[faceindex RecognizeFace(faces{i},facemean,ProjectedFaces,Eigenfaces)];
+end
+
+% clear facemean;
+% clear ProjectedFaces;
+% clear EigenFaces;
+
+load('userdb');
+showFaceInfo(userdb,faceindex);
+
+%faceindex=RecognizeFace(faces{currentFace},facemean,ProjectedFaces,Eigenfaces);
+
+
+ clear userdb;
+% filename=strcat(num2str(faceindex),'.jpg');
+% recordFound=0;
+% 
+% for i=1:size(userdb,2)
+%     facefiles=userdb(i).facefiles;
+%     for j=1:size(facefiles,2);
+%         if strcmp(filename,facefiles{j})
+%             recordid=i;
+%             recordFound=1;
+%             break;
+%         end
+%         
+%         if recordFound
+%             break;
+%         end
+%     end
+% end
+% 
+% faceindex
+% userdb(recordid)
+
+function showFaceInfo(userdb,faceIndex)
+
+global faces;
+totalFaces=size(faceIndex,2);
+
+recordsize=size(userdb,2);
+
+for i=1:recordsize
+   facefiles=userdb(i).facefiles;
+   
+   for j=1:size(facefiles,2)
+       
+       for k=1:totalFaces
+           filename=strcat(num2str(faceIndex(k)),'.jpg');
+           if strcmp(filename,facefiles{j})
+               % ith is the record
+               %userdb(i) %sample debug
+               handle=guifacedetails;
+               handle=guidata(handle);
+               imshow(faces{k},'Parent',handle.userFace);
+               imshow(imread(strcat('facedb\',filename)),'Parent',handle.matchedFace);
+               set(handle.txtRoll,'String',userdb(i).rollno);
+               set(handle.txtClass,'String',userdb(i).class);
+               set(handle.txtBranch,'String',userdb(i).branch);
+               set(handle.txtSection,'String',userdb(i).section);
+               set(handle.txtName,'String',userdb(i).name);
+           end
+       end
+   end
+end
