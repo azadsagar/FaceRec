@@ -236,7 +236,11 @@ user.section=section;
 user.branch=branch;
 user.name=name;    
 
-load userdb;
+if size(dir('userdb.mat'),1)==1
+    load userdb;
+else
+    userdb=[];
+end
 
 if get(handles.chkNewEntry,'Value')==0
     [dummy maxFiles]=size(handles.user.facefiles);
