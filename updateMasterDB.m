@@ -31,9 +31,9 @@ function updateMasterDB(faceDirPath,img)
 			   imgFile=strcat(faceDirPath,'\');
                imgFile=strcat(imgFile,num2str(i));
                imgFile=strcat(imgFile,'.jpg');
-               end
-			   
                img=imread(imgFile);
+               end
+               
                [row col z]=size(img);
                if z~=1
                    img=rgb2gray(img); %convert to grayscale image if its not
