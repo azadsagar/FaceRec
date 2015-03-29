@@ -19,13 +19,20 @@ function updateMasterDB(faceDirPath,img)
         dirFiles=dir(strcat(faceDirPath,'\*.jpg'));
 
         [maxFiles dummy]=size(dirFiles);
+		tmp=img;
 
         if maxFiles~=0
            for i=1:maxFiles
-               imgFile=strcat(faceDirPath,'\');
+               
+			   if i==maxFiles
+				img=tmp;
+			   else
+			   
+			   imgFile=strcat(faceDirPath,'\');
                imgFile=strcat(imgFile,num2str(i));
                imgFile=strcat(imgFile,'.jpg');
-               
+               end
+			   
                img=imread(imgFile);
                [row col z]=size(img);
                if z~=1
