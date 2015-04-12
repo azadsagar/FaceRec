@@ -366,9 +366,19 @@ totalFaces=size(faceIndex,2);
 
 recordsize=size(userdb,2);
 
-xlsdata(1,1)={'Roll No'};
-xlsdata(1,2)={'Name'};
-xlsdata(1,3)={'Attendance'};
+feedback=questdlg('Do you want to generate report ?','Confirm','Yes','No','Yes');
+
+generateReport=true;
+
+if feedback=='No'
+    generateReport=false;
+end
+
+if generateReport
+    xlsdata(1,1)={'Roll No'};
+    xlsdata(1,2)={'Name'};
+    xlsdata(1,3)={'Attendance'};
+end
 
 for i=1:recordsize
    facefiles=userdb(i).facefiles;
@@ -395,15 +405,19 @@ for i=1:recordsize
        end
    end
    
-    xlsdata(i+1,1)={userdb(i).rollno};
-    xlsdata(i+1,2)={userdb(i).name};
-    
-    if faceRecognized
-        xlsdata(i+1,3)={'P'};
-    else
-        xlsdata(i+1,3)={'A'};
-    end
+   if generateReport
+        xlsdata(i+1,1)={userdb(i).rollno};
+        xlsdata(i+1,2)={userdb(i).name};
+
+        if faceRecognized
+            xlsdata(i+1,3)={'P'};
+        else
+            xlsdata(i+1,3)={'A'};
+        end
+   end
    
 end
 
-xlswrite(strcat(strrep(datestr(clock),':','-'),'.xlsx'),xlsdata);
+if generateReport
+    xlswrite(strcat(strrep(datestr(clock),':','-'),'.xlsx'),xlsdata);
+end
